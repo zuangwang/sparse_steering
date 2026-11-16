@@ -98,10 +98,6 @@ Runs are resumable: a rerun skips the cells that are already saved. Do not run t
 - **Selection.** For each method, the reported score is the best test score among the settings that satisfy the text-quality limits (negative log-likelihood ratio to the unsteered model at most 1.15, and the repetition limit of the task).
 - **Seeds.** A seed fixes the data splits, everything fitted on the training set, and the initialization and data order of mask training. Each mask is trained three times, and the rerun is chosen on the mask-selection set.
 
-## Running on a cluster
-
-`launch/` contains generic templates. In the Slurm scripts, replace `<ACCOUNT>`, `<PARTITION>` and `<GPU_TYPE>`, set `SS_MODULE` to the module to run, and pass its arguments after the script name. The templates locate the repository root themselves and use the storage variables from `launch/environment.sh`.
-
 ## Tests
 
 ```bash
