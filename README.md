@@ -1,4 +1,4 @@
-# Optimized Sparsification Outperforms Dense Steering with Constrained Normalization
+# Surpassing Dense Steering in LLMs through Optimized Sparsification and Constrained Normalization
 
 Code for the experiments in the paper. The method steers a language model by adding a steering vector on a learned subset of residual-stream coordinates and rescaling the remaining coordinates so that the activation norm is preserved. The repository contains the method, all baselines, the frozen experimental protocol, and the scripts that produce every table and figure.
 
