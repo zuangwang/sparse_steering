@@ -1,0 +1,12 @@
+{
+  "expected_manifest_sha256": "bdbaeedad80f96d249458bf3f834c6f8a0648dd2890d5133df39a753ac1ab7ff",
+  "membership_recipe": "sparse_steering.tasks.splits.build",
+  "note": "Reconstruct only from the pinned public source. The complete ID manifest must match this recorded checksum before any inference. No source text is bundled.",
+  "schema": 2,
+  "seed": 0,
+  "sources": {
+    "repository": "allenai/real-toxicity-prompts",
+    "revision": "f21629712ffd6a3d13a54fd2807ccd521c55ef74"
+  },
+  "task": "rtp"
+}

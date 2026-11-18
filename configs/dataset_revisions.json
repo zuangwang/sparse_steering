@@ -1,0 +1,29 @@
+{
+  "datasets": {
+    "arc_challenge": {
+      "examples": 1000,
+      "fingerprint": "a4361c3f3e560fcd",
+      "full_split_size": 1172,
+      "repository": "allenai/ai2_arc",
+      "revision": "210d026faf9955653af8916fad021475a3f00453",
+      "sample": "sorted(random.Random(0).sample(range(N), 1000))",
+      "split": "test",
+      "subset": "ARC-Challenge"
+    },
+    "hellaswag": {
+      "examples": 1000,
+      "fingerprint": "71a62ba9d49be089",
+      "full_split_size": 10042,
+      "repository": "Rowan/hellaswag",
+      "revision": "218ec52e09a7e7462a5400043bb9a69a41d06b76",
+      "sample": "sorted(random.Random(0).sample(range(N), 1000))",
+      "split": "validation",
+      "subset": null
+    }
+  },
+  "files_sha256": {
+    "arc_challenge.json": "0269cef59052c19096a0fc4802ffc2d897e8f5859c22538e189b3b70d371c464",
+    "fixed_item_ids.json": "e90b9a956b54cbf62059243b42f8a5da478959aca5bb5822c932c6388cd7361a",
+    "hellaswag.json": "6cf701ca67092eae5af36b053c21fb07dbaba08aac015b8348150e92f28cacb9"
+  }
+}

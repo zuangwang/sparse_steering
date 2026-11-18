@@ -1,0 +1,19 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.8.0+cu128
+transformers==4.55.0
+numpy==1.26.4
+# The records pin the scientific runtime above; supporting dependencies below
+# are import requirements, not claims about a recovered environment lock.
+datasets>=3,<5
+huggingface-hub>=0.34,<1
+accelerate>=1,<2
+matplotlib>=3.9,<4
+scipy>=1.13,<2
+scikit-learn>=1.5,<2
+sentencepiece>=0.2,<1
+protobuf>=4,<7
+safetensors>=0.5,<1
+tqdm>=4.66,<5
+pytest>=8,<9
+pandas>=2,<3
+requests>=2.31,<3
