@@ -145,6 +145,24 @@ coordinate and stability outputs, and `capability` for the capability table.
 
 Repeating the commands with seeds 1, 2 and 3 produces one summary per seed.
 
+### Bundled results
+
+`results/` contains the saved strength and proportion sweeps, best feasible selections,
+selected coordinates, coordinate statistics, mask stability and paired capability intervals
+for seeds 0 to 3. See [results/README.md](results/README.md) for coverage, units and absent fields.
+Rebuild each seed's tables and figures, then the four-seed tables, without model downloads:
+
+```bash
+for seed in 0 1 2 3; do
+  python -m reproduce.summarize --results results --output "/tmp/seed${seed}-tables" --seed "$seed"
+done
+python -m reproduce.average --results results --output /tmp/averaged-tables
+```
+
+The averaged main comparison selects each seed's best feasible setting before averaging.
+The coordinate table averages coordinate statistics. Capability Mean averages per-seed mean
+absolute changes; Range takes the signed minimum and maximum over all models, tasks and seeds.
+
 ### Protocol
 
 - **Settings.** `protocol/experiment.json` is the single experiment definition.

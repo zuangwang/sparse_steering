@@ -1,0 +1,12 @@
+{
+  "k": 717,
+  "overlaps": {
+    "gradient": 0.1589958158995816,
+    "ie": 0.09762900976290098,
+    "top_k_coefficients": 0.1087866108786611,
+    "top_k_ie": 0.16317991631799164
+  },
+  "selected_squared_coefficient_mass": 0.1253524190482466,
+  "top_k_squared_coefficient_mass": 0.7079975175638309,
+  "width": 3584
+}

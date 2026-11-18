@@ -1,0 +1,587 @@
+{
+  "methods": {
+    "dense": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            -0.01,
+            0.011999999999999999
+          ],
+          "delta": 0.0010000000000000009,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.481,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.015,
+            -0.002
+          ],
+          "delta": -0.008000000000000007,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.759,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0063945366129034235,
+            0.011823516282659574
+          ],
+          "delta": 0.009046246533817914,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.3014829546552233
+        }
+      }
+    },
+    "gradient": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            -0.002,
+            0.006
+          ],
+          "delta": 0.0020000000000000018,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0004
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.482,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.007,
+            0.005
+          ],
+          "delta": -0.0010000000000000009,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0004
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.766,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            -0.00015573264374797445,
+            0.001476704081884217
+          ],
+          "delta": 0.0006514615973327587,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0004
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.293088169718738
+        }
+      }
+    },
+    "ie": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.48,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2924367081214054
+        }
+      }
+    },
+    "magnitude": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            -0.005,
+            0.002
+          ],
+          "delta": -0.0010000000000000009,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.479,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.003,
+            0.003
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            -0.0007010171895438399,
+            0.00073845632586742
+          ],
+          "delta": 1.102594796886791e-05,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2924477340693743
+        }
+      }
+    },
+    "normalized_dense": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.48,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2924367081214054
+        }
+      }
+    },
+    "ours": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.018000000000000002
+          ],
+          "delta": 0.009000000000000008,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.489,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.007,
+            0.007
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0012547947889744115,
+            0.005843870324421429
+          ],
+          "delta": 0.0035627057874805246,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.295999413908886
+        }
+      }
+    },
+    "pca_dense": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.48,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2924367081214054
+        }
+      }
+    },
+    "pca_sparse": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.009000000000000001
+          ],
+          "delta": 0.0040000000000000036,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.484,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.005,
+            0.005
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            -0.0012857369281636943,
+            5.616695726565753e-05
+          ],
+          "delta": -0.0006176351720137419,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0001
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2918190729493917
+        }
+      }
+    },
+    "sparsification_only": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            -0.004,
+            0.014
+          ],
+          "delta": 0.0050000000000000044,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.485,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            -0.007,
+            0.007
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0007449430479840036,
+            0.005311183015310971
+          ],
+          "delta": 0.003020703913665379,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.01
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.295457412035071
+        }
+      }
+    },
+    "unsteered": {
+      "arc_challenge": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.48,
+          "n_items": 1000
+        }
+      },
+      "hellaswag": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "accuracy fraction"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "accuracy": 0.767,
+          "n_items": 1000
+        }
+      },
+      "wikitext": {
+        "paired": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "delta": 0.0,
+          "unit": "nats/token"
+        },
+        "selected": {
+          "edit_norm_ratio_squared": 0.0
+        },
+        "status": "complete",
+        "summary": {
+          "n_items": 128,
+          "nll": 2.2924367081214054
+        }
+      }
+    }
+  },
+  "unsteered": {
+    "arc_challenge": {
+      "status": "complete",
+      "summary": {
+        "accuracy": 0.48,
+        "n_items": 1000
+      }
+    },
+    "hellaswag": {
+      "status": "complete",
+      "summary": {
+        "accuracy": 0.767,
+        "n_items": 1000
+      }
+    },
+    "wikitext": {
+      "status": "complete",
+      "summary": {
+        "n_items": 128,
+        "nll": 2.2924367081214054
+      }
+    }
+  }
+}

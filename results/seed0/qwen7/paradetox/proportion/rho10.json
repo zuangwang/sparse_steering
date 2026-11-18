@@ -1,0 +1,120 @@
+{
+  "grids": {
+    "ours": [
+      {
+        "actual_squared_edit_norm": 0.0,
+        "edit_norm_ratio_squared": 0.0,
+        "feasible": true,
+        "nll_ratio": 1.0,
+        "repeated_4gram": 0.05078125,
+        "score": 84.42425663191244
+      },
+      {
+        "actual_squared_edit_norm": 26.624844614848605,
+        "edit_norm_ratio_squared": 0.0001,
+        "feasible": true,
+        "nll_ratio": 0.9978308480894094,
+        "repeated_4gram": 0.052734375,
+        "score": 84.3580364171487
+      },
+      {
+        "actual_squared_edit_norm": 106.53088634692551,
+        "edit_norm_ratio_squared": 0.0004,
+        "feasible": true,
+        "nll_ratio": 1.0018923399522905,
+        "repeated_4gram": 0.046875,
+        "score": 84.79840773399587
+      },
+      {
+        "actual_squared_edit_norm": 266.3571179791262,
+        "edit_norm_ratio_squared": 0.001,
+        "feasible": true,
+        "nll_ratio": 0.9976435923271583,
+        "repeated_4gram": 0.052734375,
+        "score": 83.83918450257042
+      },
+      {
+        "actual_squared_edit_norm": 665.9314808164502,
+        "edit_norm_ratio_squared": 0.0025,
+        "feasible": true,
+        "nll_ratio": 1.0168125823491971,
+        "repeated_4gram": 0.0390625,
+        "score": 85.01802321775429
+      },
+      {
+        "actual_squared_edit_norm": 1331.9096377872695,
+        "edit_norm_ratio_squared": 0.005,
+        "feasible": true,
+        "nll_ratio": 1.035470503765191,
+        "repeated_4gram": 0.041015625,
+        "score": 86.70111831886516
+      },
+      {
+        "actual_squared_edit_norm": 2663.876584190385,
+        "edit_norm_ratio_squared": 0.01,
+        "feasible": true,
+        "nll_ratio": 1.0762052489119909,
+        "repeated_4gram": 0.03125,
+        "score": 87.2208125178858
+      },
+      {
+        "actual_squared_edit_norm": 5993.829487850764,
+        "edit_norm_ratio_squared": 0.0225,
+        "feasible": true,
+        "nll_ratio": 1.1457227415524178,
+        "repeated_4gram": 0.03515625,
+        "score": 86.34756401926325
+      },
+      {
+        "actual_squared_edit_norm": 10655.805401810889,
+        "edit_norm_ratio_squared": 0.04,
+        "feasible": false,
+        "nll_ratio": 1.254218488424868,
+        "repeated_4gram": 0.03125,
+        "score": 90.41902136760669
+      },
+      {
+        "actual_squared_edit_norm": 23832.935079897103,
+        "edit_norm_ratio_squared": 0.09,
+        "feasible": false,
+        "nll_ratio": 1.4913444315447515,
+        "repeated_4gram": 0.02734375,
+        "score": 90.81909296568682
+      },
+      {
+        "actual_squared_edit_norm": 35853.84564200525,
+        "edit_norm_ratio_squared": 0.16,
+        "feasible": false,
+        "nll_ratio": 1.6556404903782047,
+        "repeated_4gram": 0.017578125,
+        "score": 93.2329322929192
+      },
+      {
+        "actual_squared_edit_norm": 38065.0591576406,
+        "edit_norm_ratio_squared": 0.36,
+        "feasible": false,
+        "nll_ratio": 1.6733207403734,
+        "repeated_4gram": 0.017578125,
+        "score": 92.37838470515456
+      }
+    ]
+  },
+  "selected": {
+    "ours": {
+      "actual_squared_edit_norm": 2663.876584190385,
+      "edit_norm_ratio_squared": 0.01,
+      "feasible": true,
+      "nll_ratio": 1.0762052489119909,
+      "repeated_4gram": 0.03125,
+      "score": 87.2208125178858
+    }
+  },
+  "unsteered": {
+    "actual_squared_edit_norm": 0.0,
+    "edit_norm_ratio_squared": 0.0,
+    "feasible": true,
+    "nll_ratio": 1.0,
+    "repeated_4gram": 0.05078125,
+    "score": 84.42425663191244
+  }
+}
