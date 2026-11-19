@@ -33,7 +33,7 @@ relative to the source root.
 | `evaluation/language_modeling.py` | WikiText continuation likelihoods |
 | `evaluation/bootstrap.py` | Paired confidence intervals |
 | `runtime/` | Model loading, hooks, storage, runner and multi-GPU placement |
-| `analysis/` | Coordinate overlap, mask stability, tables and figures |
+| `analysis/` | Coordinate overlap, mask stability, tables and paper figure rendering (`paper_figures.py`) |
 | `tests/` | CPU tests for code reached by the reproduce commands |
 
 ### Where each equation lives
@@ -162,6 +162,14 @@ python -m reproduce.average --results results --output /tmp/averaged-tables
 The averaged main comparison selects each seed's best feasible setting before averaging.
 The coordinate table averages coordinate statistics. Capability Mean averages per-seed mean
 absolute changes; Range takes the signed minimum and maximum over all models, tasks and seeds.
+
+Redraw the paper's seven data figures from `results/` alone (CPU only). Figures 2 and 3 are
+diagrams and need no data. This command needs Matplotlib and PyMuPDF from `requirements.txt`;
+Matplotlib 3.10.9 matches the paper rendering. Fonts ship with Matplotlib; no TeX installation is needed.
+
+```bash
+python -m reproduce.paper_figures --results results --output <dir>
+```
 
 ### Protocol
 

@@ -17,3 +17,4 @@ tqdm>=4.66,<5
 pytest>=8,<9
 pandas>=2,<3
 requests>=2.31,<3
+PyMuPDF>=1.26,<2
