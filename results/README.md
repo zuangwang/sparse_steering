@@ -38,16 +38,39 @@ Feasibility and grid selections use the current limits. Nominal amplitudes are
 not substituted for measured `alpha`. Fitted direction vectors, per-item data,
 execution metadata, paths, hashes and timing are excluded.
 
+Method keys:
+
+| Key | Method |
+|---|---|
+| `ours` | Optimized sparsification with constrained normalization |
+| `sparsification_only` | Optimized sparsification without normalization |
+| `sparsification_global_norm` | Optimized sparsification with global normalization |
+| `dense` | Dense baseline (CAA), the mean-difference direction |
+| `normalized_dense` | Dense baseline with global normalization |
+| `pca_dense`, `pca_sparse` | PCA direction, dense and sparse |
+| `magnitude`, `gradient`, `ie` | Coordinates selected by magnitude, gradient and IE |
+| `unsteered` | The model without steering |
+
+## Rebuilding the paper's tables and figures
+
+These commands run on CPU and download nothing. Rebuild the four-seed comparison, coordinate and
+capability tables (`comparison.csv`, `coordinates.csv`, `capability.csv`):
+
+```bash
+python -m reproduce.average --results results --output outputs/tables
+```
+
+Redraw the paper's seven data figures. Figures 2 and 3 are diagrams and use no data. Matplotlib
+3.10.9 reproduces the paper's rendering.
+
+```bash
+python -m reproduce.paper_figures --results results --output outputs/figures
+```
+
 Rebuild one seed's tables and figures (repeat for seeds 1, 2 and 3):
 
 ```bash
-python -m reproduce.summarize --results results --output /tmp/seed0-tables --seed 0
-```
-
-Rebuild the four-seed comparison, coordinate and capability tables:
-
-```bash
-python -m reproduce.average --results results --output /tmp/averaged-tables
+python -m reproduce.summarize --results results --output outputs/seed0 --seed 0
 ```
 
 Averaging selects the best feasible score independently in each seed, then

@@ -128,7 +128,7 @@ it does not identify the learned mask. `squared_edit_norm_limit` bounds the fina
 
 Task records call the unsteered rescoring loss `completion_nll`. `prediction_step` identifies an
 intervened prediction position; `prediction_trace` stores its displacement and norm diagnostics.
-`answer_label_ids` identifies the two A/B answer tokens. Method keys match the README, including
+`answer_label_ids` identifies the two A/B answer tokens. Method keys match `results/README.md`, including
 `ours`, `dense`, `normalized_dense` and `unsteered`.
 
 The loss scale is `gamma`, including the open-generation mask setting in `experiment.json`.

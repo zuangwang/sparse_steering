@@ -1,172 +1,98 @@
 # Surpassing Dense Steering in LLMs through Optimized Sparsification and Constrained Normalization
 
-Code and results for the paper. The method adds a steering vector on a learned subset of
-residual-stream coordinates (optimized sparsification) and then rescales only those coordinates so
-that their norm returns to its value before the edit (constrained normalization).
+Activation steering changes the behavior of a language model by adding a steering direction to an
+intermediate activation at inference time. A stronger edit changes the behavior more, but it also
+degrades the generated text. This repository contains the code and results of a sparse steering
+method that reaches higher steering scores than dense steering under the same text-quality limits.
+The method has two components:
 
-The repository supports two uses:
+1. **Optimized sparsification** learns which coordinates of a steering direction to modify.
+2. **Constrained normalization** restores the activation norm by rescaling only those coordinates.
 
-1. **Rebuild the paper's tables and figures** from the bundled results. CPU only, no model download.
-2. **Rerun the experiments** on a GPU.
+## Method
 
-Both start from the same installation (Linux, Python 3.11):
+Let `h` be the `d`-dimensional residual-stream activation at the steered layer. The steering
+direction `v` is the mean difference between the activations of preferred and opposite outputs over
+contrastive training pairs. Dense steering (CAA) adds `α·v` to `h`, where `α` is the steering
+strength, and therefore changes every coordinate.
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+### 1. Optimized sparsification
+
+![Optimized sparsification learns which coordinates to steer](figures/pins_training.png)
+
+Existing sparse methods select coordinates with a fixed rule, such as the largest coefficients of
+`v` or the highest attribution scores, which evaluates each coordinate individually. Optimized
+sparsification learns a binary mask `M` that keeps `K = ⌈0.2d⌉` coordinates, and steers with the
+masked direction `v_M = M ⊙ v`.
+
+- **Trainable scores.** Each coordinate `i` has a score `z_i`. The mask keeps the `K` coordinates
+  with the highest scores. Only the scores are trained; the language model and `v` stay frozen.
+- **Loss.** For a training pair with prompt `q`, preferred output `y_T` and opposite output `y_O`,
+  the preference margin under an edit `δ` is `g(δ) = log p_δ(y_T | q) − log p_δ(y_O | q)`. The loss
+  rewards a mask for which steering along `v_M` raises the margin and steering against it lowers
+  the margin, relative to the unsteered model:
+
+  ```
+  L(M) = mean over pairs of ½ [ softplus(−γ (g₊ − g₀)) + softplus(−γ (g₀ − g₋)) ]
+  g₊ = g(α·v_M)      g₋ = g(−α·v_M)      g₀ = g(0)
+  ```
+
+- **Straight-through gradient.** The forward pass always applies a binary mask with exactly `K`
+  coordinates. The backward pass sends gradients to the scores through a sigmoid surrogate.
+- **Joint selection.** All scores are trained through the behavior of the whole masked direction,
+  so the mask selects a combination of coordinates. The selected coordinates differ substantially
+  from those chosen by existing selection rules.
+- **Fixed direction.** The method selects coordinates of an existing direction and does not learn a
+  new one. It trains `d` scores, and it applies to directions built by other methods.
+
+Implementation: `sparse_steering/method/mask_training/`.
+
+### 2. Constrained normalization
+
+![Constrained normalization rescales only the selected coordinates](figures/constrained_normalization.png)
+
+A sparse edit still changes the norm of the activation, which degrades the generated text. Existing
+norm-preserving methods rescale the whole activation. This changes every coordinate and removes the
+sparsity of the edit. Constrained normalization rescales only the selected coordinates `C`:
+
+```
+h̃   = h + α·v_M              add the masked direction, which changes only C
+h′ᵢ = β·h̃ᵢ    for i in C     rescale the selected coordinates
+h′ᵢ = hᵢ      otherwise      leave every other coordinate unchanged
+β   = ‖M ⊙ h‖ / ‖M ⊙ h̃‖
 ```
 
-## 1. Rebuild the tables and figures
+The steered activation has the original norm, `‖h′‖ = ‖h‖`, and 80% of its coordinates are exactly
+those of `h`. This keeps the NLL of the generated text lower than rescaling the whole activation,
+so a stronger edit fits within the text-quality limits.
 
-`results/` holds the measurements behind every number in the paper: five models, four tasks and
-seeds 0 to 3. Its files are described in [results/README.md](results/README.md).
+Implementation: `sparse_steering/method/sparse_edit.py` and
+`sparse_steering/method/constrained_normalization.py`.
 
-```bash
-python -m reproduce.average --results results --output outputs/tables
-python -m reproduce.paper_figures --results results --output outputs/figures
-```
+### Result
 
-| Output | Paper item |
-|---|---|
-| `tables/comparison.csv` | Main comparison table |
-| `tables/coordinates.csv` | Coordinate overlap table |
-| `tables/capability.csv` | General capability table |
-| `figures/main_result.pdf` | Figure 1 |
-| `figures/selection_overlap.pdf` | Figure 4 |
-| `figures/norm_strength.pdf` | Normalization and strength figure |
-| `figures/proportion_sweeps.pdf` | Proportion figure |
-| `figures/dense_margin.pdf` | Margin over the dense baseline |
-| `figures/selected_coordinate_statistics.pdf`, `figures/mask_seed_overlap.pdf` | Appendix figures |
+![Our method and the dense baseline on four tasks and four models](figures/main_result.png)
 
-Values are means over the four seeds. The main comparison takes each seed's best feasible score
-first and then averages. Figures 2 and 3 are diagrams and use no data. Matplotlib 3.10.9 reproduces
-the paper's rendering.
+Each curve sweeps the steering strength. The x-axis is the task score and the y-axis is the NLL
+ratio between steered and unsteered text, where lower means less degraded text. The NLL ratio of
+dense steering rises sharply while its score barely changes, whereas that of our method stays low
+as its score rises. In the main comparison (Gemma 2B, Qwen 3B, Llama 7B and Qwen 7B on TruthfulQA,
+HaluEval, ParaDetox and RealToxicityPrompts), our method attains the highest score among eight
+methods in all 16 cases under the same text-quality limits, and it exceeds the dense baseline by
+5.94% on average.
 
-## 2. Rerun the experiments
-
-### Models
-
-A CUDA GPU with native bf16 support is required.
-
-| Model key | Hugging Face identifier | Steered layer | GPU memory |
-|---|---|---:|---|
-| `gemma` | `google/gemma-2-2b` | 18 | 24 GB |
-| `qwen` | `Qwen/Qwen2.5-3B-Instruct` | 24 | 24 GB |
-| `llama` | `NousResearch/Llama-2-7b-chat-hf` | 21 | 40 to 80 GB |
-| `qwen7` | `Qwen/Qwen2.5-7B-Instruct` | 19 | 40 to 80 GB |
-| `qwen32b` | `Qwen/Qwen2.5-32B-Instruct` | 43 | 80 GB for grids, 2 × 80 GB for fitting |
-
-### One command
-
-A case is one model, task and seed. Tasks are `truthfulqa`, `halueval`, `paradetox` and `rtp`.
-`run_experiment.sh` runs a case from a fresh clone: it creates `.venv`, installs the requirements,
-downloads the model and the data, fits, evaluates, and prints each method's best feasible score.
+## Run
 
 ```bash
-export SPARSE_STEERING_RUN_ROOT=/path/to/storage   # weights, data and results
-export HF_TOKEN=<token>                            # only for gated models such as Gemma
-bash run_experiment.sh gemma truthfulqa 0          # <model> <task> [seed]
+bash run_experiment.sh gemma truthfulqa 0
 ```
 
-Finished steps are skipped when the command is repeated. `DRY_RUN=1` prints the commands without
-running them, and `CAPABILITY=0` skips the general-capability evaluation. Results are written to
-`$SPARSE_STEERING_RUN_ROOT/results` in the same layout as `results/`.
+The arguments are the model (`gemma`, `qwen`, `llama`, `qwen7`, `qwen32b`), the task (`truthfulqa`,
+`halueval`, `paradetox`, `rtp`) and the seed (`0` to `3`). The script creates the Python
+environment, downloads the model and the data, trains the mask, evaluates every method over the
+steering strengths and prints each method's best score within the text-quality limits. It requires
+a CUDA GPU with bf16 support; `bash run_experiment.sh` lists its settings.
 
-### Step by step
-
-The script runs the commands below; use them directly to run only part of a case.
-
-```bash
-export SPARSE_STEERING_RUN_ROOT=/path/to/storage
-source launch/environment.sh        # sets $OUTPUT_DIR and the cache locations
-python -m reproduce.download_models --model gemma
-python -m reproduce.prepare
-python -m reproduce.capability_panels
-```
-
-```bash
-# 1. Fit the direction, the comparison methods and the coordinate mask
-python -m reproduce.fit --seed 0 --model gemma --task truthfulqa
-
-# 2. Evaluate every method on the strength grid
-python -m reproduce.grid --seed 0 --model gemma --task truthfulqa
-
-# 3. Evaluate general capability at each method's best feasible setting
-python -m reproduce.capability --seed 0 --model gemma --task truthfulqa
-```
-
-Repeat for every model, task and seed 0 to 3. Once all four seeds of a model are fitted, compute
-its coordinate overlap and mask stability:
-
-```bash
-python -m reproduce.postprocess --model gemma
-```
-
-Then build the tables and figures as in section 1, with `--results "$OUTPUT_DIR"`.
-
-- **RealToxicityPrompts.** `rtp` reuses the ParaDetox direction and mask of the same seed. Run only
-  its `grid`, after the ParaDetox `fit`. The script does this automatically.
-- **Proportion of coordinates.** Add `--fraction 0.1`, `0.4` or `0.8` to both `fit` and `grid`.
-  The default is `0.2`.
-- **One GPU type per case.** Run a case, including its unsteered reference, on a single GPU type.
-  The text-quality limit is a ratio to that reference.
-- **Resuming.** A repeated command skips the units that are already complete. Run each case in a
-  single process.
-- **Launchers.** `bash launch/run.sh fit ...` runs a command in the shared environment, and
-  `launch/run.sbatch` is a Slurm template. Each command accepts `--help`.
-
-## Code
-
-| Path | Contents |
-|---|---|
-| `reproduce/` | The commands above |
-| `sparse_steering/method/` | Mask training, sparse edit and constrained normalization |
-| `sparse_steering/baselines/` | Dense and PCA steering; magnitude, gradient and IE coordinate selection |
-| `sparse_steering/tasks/` | Answer-selection and detoxification tasks, data sources and splits |
-| `sparse_steering/evaluation/` | Strength grid, best feasible selection, capability and confidence intervals |
-| `sparse_steering/runtime/` | Model loading, hooks, storage and multi-GPU placement |
-| `sparse_steering/analysis/` | Tables and figures |
-| `protocol/` | Experiment settings (`experiment.json`) and the fixed splits of each seed |
-| `configs/` | Dataset revisions, library versions and capability item identifiers |
-
-`protocol/experiment.json` is the single definition of the experiments: model revisions, layers,
-strength grid, training settings and text-quality limits.
-[protocol/PROTOCOL.md](protocol/PROTOCOL.md) explains each part.
-
-The paper's expressions are implemented in these files, relative to `sparse_steering/`:
-
-| Paper expression | Implementation |
-|---|---|
-| Mean-difference direction and activation scale | `runtime/model_loading.py::fit_direction` |
-| Exact-K mask and straight-through surrogate | `method/mask_training/masks.py` |
-| Answer-selection loss | `method/mask_training/objectives.py::reference_loss` |
-| Full-response loss | `method/mask_training/objectives.py::preference_loss` |
-| Sparse edit, h_tilde = h + alpha * v_M | `method/sparse_edit.py::realize_batch` |
-| Constrained normalization, beta * h_tilde | `method/constrained_normalization.py` |
-| Global normalization | `method/global_normalization.py` |
-| Best feasible score under the text-quality limits | `evaluation/text_quality.py` |
-
-Result files and tables name the methods with these keys:
-
-| Key | Method |
-|---|---|
-| `ours` | Optimized sparsification with constrained normalization |
-| `sparsification_only` | Optimized sparsification without normalization |
-| `sparsification_global_norm` | Optimized sparsification with global normalization |
-| `dense` | Dense baseline (CAA), the mean-difference direction |
-| `normalized_dense` | Dense baseline with global normalization |
-| `pca_dense`, `pca_sparse` | PCA direction, dense and sparse |
-| `magnitude`, `gradient`, `ie` | Coordinates selected by magnitude, gradient and IE |
-| `unsteered` | The model without steering |
-
-The best feasible setting of a method is the strength with the highest task score whose NLL ratio
-is at most 1.15 and whose repetition is within the task's limit.
-
-## Tests
-
-```bash
-python -m unittest discover
-```
-
-The 34 tests run on CPU and download nothing.
+The individual commands are described in [reproduce/README.md](reproduce/README.md), the bundled
+results of the paper in [results/README.md](results/README.md), and the experimental protocol in
+[protocol/PROTOCOL.md](protocol/PROTOCOL.md).
