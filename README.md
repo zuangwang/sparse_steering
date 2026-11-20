@@ -57,23 +57,33 @@ A CUDA GPU with native bf16 support is required.
 | `qwen7` | `Qwen/Qwen2.5-7B-Instruct` | 19 | 40 to 80 GB |
 | `qwen32b` | `Qwen/Qwen2.5-32B-Instruct` | 43 | 80 GB for grids, 2 × 80 GB for fitting |
 
-### Prepare
+### One command
+
+A case is one model, task and seed. Tasks are `truthfulqa`, `halueval`, `paradetox` and `rtp`.
+`run_experiment.sh` runs a case from a fresh clone: it creates `.venv`, installs the requirements,
+downloads the model and the data, fits, evaluates, and prints each method's best feasible score.
+
+```bash
+export SPARSE_STEERING_RUN_ROOT=/path/to/storage   # weights, data and results
+export HF_TOKEN=<token>                            # only for gated models such as Gemma
+bash run_experiment.sh gemma truthfulqa 0          # <model> <task> [seed]
+```
+
+Finished steps are skipped when the command is repeated. `DRY_RUN=1` prints the commands without
+running them, and `CAPABILITY=0` skips the general-capability evaluation. Results are written to
+`$SPARSE_STEERING_RUN_ROOT/results` in the same layout as `results/`.
+
+### Step by step
+
+The script runs the commands below; use them directly to run only part of a case.
 
 ```bash
 export SPARSE_STEERING_RUN_ROOT=/path/to/storage
-source launch/environment.sh
+source launch/environment.sh        # sets $OUTPUT_DIR and the cache locations
 python -m reproduce.download_models --model gemma
 python -m reproduce.prepare
 python -m reproduce.capability_panels
 ```
-
-Model weights, datasets and fitted objects are stored below `SPARSE_STEERING_RUN_ROOT`. Results are
-written to `$OUTPUT_DIR` in the same layout as `results/`. Log in to the Hugging Face Hub first if a
-model is gated.
-
-### Run one case
-
-A case is one model, task and seed. Tasks are `truthfulqa`, `halueval`, `paradetox` and `rtp`.
 
 ```bash
 # 1. Fit the direction, the comparison methods and the coordinate mask
@@ -96,7 +106,7 @@ python -m reproduce.postprocess --model gemma
 Then build the tables and figures as in section 1, with `--results "$OUTPUT_DIR"`.
 
 - **RealToxicityPrompts.** `rtp` reuses the ParaDetox direction and mask of the same seed. Run only
-  its `grid`, after the ParaDetox `fit`.
+  its `grid`, after the ParaDetox `fit`. The script does this automatically.
 - **Proportion of coordinates.** Add `--fraction 0.1`, `0.4` or `0.8` to both `fit` and `grid`.
   The default is `0.2`.
 - **One GPU type per case.** Run a case, including its unsteered reference, on a single GPU type.
