@@ -28,15 +28,10 @@ masked direction `v_M = M ⊙ v`.
 - **Trainable scores.** Each coordinate `i` has a score `z_i`. The mask keeps the `K` coordinates
   with the highest scores. Only the scores are trained; the language model and `v` stay frozen.
 - **Loss.** For a training pair with prompt `q`, preferred output `y_T` and opposite output `y_O`,
-  the preference margin under an edit `δ` is `g(δ) = log p_δ(y_T | q) − log p_δ(y_O | q)`. The loss
-  rewards a mask for which steering along `v_M` raises the margin and steering against it lowers
-  the margin, relative to the unsteered model:
-
-  ```
-  L(M) = mean over pairs of ½ [ softplus(−γ (g₊ − g₀)) + softplus(−γ (g₀ − g₋)) ]
-  g₊ = g(α·v_M)      g₋ = g(−α·v_M)      g₀ = g(0)
-  ```
-
+  the preference margin under an edit `δ` is `g(δ) = log p_δ(y_T | q) − log p_δ(y_O | q)`. The
+  loss, written at the top of the figure, compares the margin after steering along the masked
+  direction, `g(α·v_M)`, and against it, `g(−α·v_M)`, with the unsteered margin `g(0)`. It rewards
+  a mask for which `g(−α·v_M) < g(0) < g(α·v_M)`.
 - **Straight-through gradient.** The forward pass always applies a binary mask with exactly `K`
   coordinates. The backward pass sends gradients to the scores through a sigmoid surrogate.
 - **Joint selection.** All scores are trained through the behavior of the whole masked direction,
@@ -53,14 +48,12 @@ Implementation: `sparse_steering/method/mask_training/`.
 
 A sparse edit still changes the norm of the activation, which degrades the generated text. Existing
 norm-preserving methods rescale the whole activation. This changes every coordinate and removes the
-sparsity of the edit. Constrained normalization rescales only the selected coordinates `C`:
+sparsity of the edit. Constrained normalization rescales only the selected coordinates `C`, in two
+steps:
 
-```
-h̃   = h + α·v_M              add the masked direction, which changes only C
-h′ᵢ = β·h̃ᵢ    for i in C     rescale the selected coordinates
-h′ᵢ = hᵢ      otherwise      leave every other coordinate unchanged
-β   = ‖M ⊙ h‖ / ‖M ⊙ h̃‖
-```
+1. **Add the masked direction:** `h̃ = h + α·v_M`. This changes only the coordinates in `C`.
+2. **Rescale the selected coordinates:** `h′ᵢ = β·h̃ᵢ` for `i` in `C`, with
+   `β = ‖M ⊙ h‖ / ‖M ⊙ h̃‖`. Every other coordinate keeps its value, `h′ᵢ = hᵢ`.
 
 The steered activation has the original norm, `‖h′‖ = ‖h‖`, and 80% of its coordinates are exactly
 those of `h`. This keeps the NLL of the generated text lower than rescaling the whole activation,
