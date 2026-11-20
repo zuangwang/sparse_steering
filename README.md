@@ -1,65 +1,53 @@
 # Surpassing Dense Steering in LLMs through Optimized Sparsification and Constrained Normalization
 
-Code for the experiments in the paper. The method steers a language model by adding a steering
-vector on a learned subset of residual-stream coordinates and rescaling only these selected
-coordinates so that their norm equals their norm before the edit, which leaves all other coordinates
-unchanged. The repository contains the method, all baselines, the frozen experimental protocol, and
-the scripts that produce every table and figure.
+Code and results for the paper. The method adds a steering vector on a learned subset of
+residual-stream coordinates (optimized sparsification) and then rescales only those coordinates so
+that their norm returns to its value before the edit (constrained normalization).
 
-## Contents
+The repository supports two uses:
 
-The library lives in `sparse_steering/`; its rows below omit that prefix. Other rows are
-relative to the source root.
+1. **Rebuild the paper's tables and figures** from the bundled results. CPU only, no model download.
+2. **Rerun the experiments** on a GPU.
 
-| Path | Contents |
+Both start from the same installation (Linux, Python 3.11):
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## 1. Rebuild the tables and figures
+
+`results/` holds the measurements behind every number in the paper: five models, four tasks and
+seeds 0 to 3. Its files are described in [results/README.md](results/README.md).
+
+```bash
+python -m reproduce.average --results results --output outputs/tables
+python -m reproduce.paper_figures --results results --output outputs/figures
+```
+
+| Output | Paper item |
 |---|---|
-| `reproduce/` | Preparation, fits, grids, capability, postprocessing and summaries |
-| `protocol/experiment.json` | Model revisions, layers, grids, training and quality limits |
-| `protocol/splits/` | Fixed task membership for seeds 0 to 3 |
-| `protocol/PROTOCOL.md` | Objectives, scoring and selection rules |
-| `configs/` | Capability identifiers, dataset revisions and library versions |
-| `launch/` | Storage environment, shell launcher and Slurm template |
-| `method/mask_training/` | Answer-selection and open-generation objectives and trainers |
-| `method/sparse_edit.py` | Sparse addition and bf16 displacement matching |
-| `method/constrained_normalization.py` | Norm preservation on selected coordinates |
-| `method/global_normalization.py` | Norm preservation on the full activation |
-| `baselines/` | Dense, PCA and `coordinate_selectors/` comparison methods |
-| `tasks/` | Answer selection, detoxification, sources and fixed splits |
-| `evaluation/strength_sweep.py` | Common strength grid and method configuration |
-| `evaluation/text_quality.py` | Best feasible setting under quality limits |
-| `evaluation/sweep_checks.py` | Displacement, support and sweep consistency checks |
-| `evaluation/capability.py` | Capability orchestration and panel validation |
-| `evaluation/choice_scoring.py` | ARC and HellaSwag choice likelihoods |
-| `evaluation/language_modeling.py` | WikiText continuation likelihoods |
-| `evaluation/bootstrap.py` | Paired confidence intervals |
-| `runtime/` | Model loading, hooks, storage, runner and multi-GPU placement |
-| `analysis/` | Coordinate overlap, mask stability, tables and paper figure rendering (`paper_figures.py`) |
-| `tests/` | CPU tests for code reached by the reproduce commands |
+| `tables/comparison.csv` | Main comparison table |
+| `tables/coordinates.csv` | Coordinate overlap table |
+| `tables/capability.csv` | General capability table |
+| `figures/main_result.pdf` | Figure 1 |
+| `figures/selection_overlap.pdf` | Figure 4 |
+| `figures/norm_strength.pdf` | Normalization and strength figure |
+| `figures/proportion_sweeps.pdf` | Proportion figure |
+| `figures/dense_margin.pdf` | Margin over the dense baseline |
+| `figures/selected_coordinate_statistics.pdf`, `figures/mask_seed_overlap.pdf` | Appendix figures |
 
-### Where each equation lives
+Values are means over the four seeds. The main comparison takes each seed's best feasible score
+first and then averages. Figures 2 and 3 are diagrams and use no data. Matplotlib 3.10.9 reproduces
+the paper's rendering.
 
-All paths in this table are relative to `sparse_steering/`.
+## 2. Rerun the experiments
 
-| Paper expression | Implementation |
-|---|---|
-| Mean-difference direction and activation scale | `runtime/model_loading.py::fit_direction` |
-| Exact-K mask and straight-through surrogate | `method/mask_training/masks.py` |
-| Answer-selection loss, gamma | `method/mask_training/objectives.py::reference_loss` |
-| Full-response loss, gamma | `method/mask_training/objectives.py::preference_loss` |
-| Sparse edit, h_tilde = h + alpha * v_M | `method/sparse_edit.py::realize_batch` |
-| Constrained normalization, beta * h_tilde | `method/constrained_normalization.py` |
-| Global normalization comparison | `method/global_normalization.py` |
-| Best feasible score under NLL and repetition limits | `evaluation/text_quality.py` |
+### Models
 
-The constrained operator implements sparse addition and rescaling together. Its multiplier search
-checks the final bf16 displacement against the dense edit requested at the same strength. The loss
-scale `gamma` is distinct from the normalization factor `beta`.
-
-## Requirements
-
-- Linux, Python 3.11, a CUDA GPU with native bf16 support.
-- `torch==2.8.0+cu128`, `transformers==4.55.0`, `numpy==1.26.4`; other dependencies are listed in
-  `requirements.txt`.
+A CUDA GPU with native bf16 support is required.
 
 | Model key | Hugging Face identifier | Steered layer | GPU memory |
 |---|---|---:|---|
@@ -67,22 +55,11 @@ scale `gamma` is distinct from the normalization factor `beta`.
 | `qwen` | `Qwen/Qwen2.5-3B-Instruct` | 24 | 24 GB |
 | `llama` | `NousResearch/Llama-2-7b-chat-hf` | 21 | 40 to 80 GB |
 | `qwen7` | `Qwen/Qwen2.5-7B-Instruct` | 19 | 40 to 80 GB |
-| `qwen32b` | `Qwen/Qwen2.5-32B-Instruct` | 43 | See below |
+| `qwen32b` | `Qwen/Qwen2.5-32B-Instruct` | 43 | 80 GB for grids, 2 × 80 GB for fitting |
 
-The 32B model needs 80 GB for inference and two 80 GB GPUs for mask training.
-
-Model revisions are pinned in `protocol/experiment.json`. Toxicity is scored with
-`s-nlp/roberta_toxicity_classifier` at a pinned revision. Keep all runs of one model, task and seed
-on one GPU type, including the unsteered reference, because the text-quality limit is a ratio to
-that reference.
-
-## Setup
+### Prepare
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
 export SPARSE_STEERING_RUN_ROOT=/path/to/storage
 source launch/environment.sh
 python -m reproduce.download_models --model gemma
@@ -90,113 +67,96 @@ python -m reproduce.prepare
 python -m reproduce.capability_panels
 ```
 
-The environment places model weights, datasets, caches and fitted objects below
-`SPARSE_STEERING_RUN_ROOT`, outside the source folder. Results are written to `$OUTPUT_DIR`. Log in
-to the Hugging Face Hub first if a model is gated.
+Model weights, datasets and fitted objects are stored below `SPARSE_STEERING_RUN_ROOT`. Results are
+written to `$OUTPUT_DIR` in the same layout as `results/`. Log in to the Hugging Face Hub first if a
+model is gated.
 
-## Running the experiments
+### Run one case
 
-Each case is one model, task and seed. Tasks are `truthfulqa`, `halueval`, `paradetox` and `rtp`.
-RealToxicityPrompts reuses the ParaDetox direction and mask of the same seed, so run its `grid`
-command after fitting ParaDetox.
+A case is one model, task and seed. Tasks are `truthfulqa`, `halueval`, `paradetox` and `rtp`.
 
 ```bash
-# Fit the direction, comparison methods and coordinate mask
+# 1. Fit the direction, the comparison methods and the coordinate mask
 python -m reproduce.fit --seed 0 --model gemma --task truthfulqa
 
-# Evaluate the strength grid
+# 2. Evaluate every method on the strength grid
 python -m reproduce.grid --seed 0 --model gemma --task truthfulqa
 
-# Compute coordinate overlap and mask stability after fitting a model
-python -m reproduce.postprocess --model gemma
-
-# Evaluate capability at each method's best feasible setting
+# 3. Evaluate general capability at each method's best feasible setting
 python -m reproduce.capability --seed 0 --model gemma --task truthfulqa
-
-# Build tables and figures
-python -m reproduce.summarize --results "$OUTPUT_DIR" --output "$OUTPUT_DIR/figures" --seed 0
 ```
 
-Repeat with `--seed 1`, `2` and `3`. To change the selected fraction, add `--fraction 0.1`, `0.4` or
-`0.8` to both `fit` and `grid`; the default is `0.2`. `python -m reproduce.runner fit ...` and
-`python -m reproduce.runner grid ...` are equivalent forms. `bash launch/run.sh fit ...` uses the
-shared environment, and `launch/run.sbatch` provides a generic submission template.
+Repeat for every model, task and seed 0 to 3. Once all four seeds of a model are fitted, compute
+its coordinate overlap and mask stability:
 
-The 32B model uses two visible GPUs for fitting and one for grid inference. `runtime/multi_gpu.py`
-places its intervention layer, embeddings and logits on GPU 0. A completed unit is skipped when its
-command is repeated; keep each case in a single process.
+```bash
+python -m reproduce.postprocess --model gemma
+```
 
-### Paper items
+Then build the tables and figures as in section 1, with `--results "$OUTPUT_DIR"`.
 
-Run `fit` and `grid` for each model, task and seed, then `summarize`. Include `qwen32b` for the
-main-result figure and the fraction settings for the proportion figure. Run `postprocess` for
-coordinate and stability outputs, and `capability` for the capability table.
+- **RealToxicityPrompts.** `rtp` reuses the ParaDetox direction and mask of the same seed. Run only
+  its `grid`, after the ParaDetox `fit`.
+- **Proportion of coordinates.** Add `--fraction 0.1`, `0.4` or `0.8` to both `fit` and `grid`.
+  The default is `0.2`.
+- **One GPU type per case.** Run a case, including its unsteered reference, on a single GPU type.
+  The text-quality limit is a ratio to that reference.
+- **Resuming.** A repeated command skips the units that are already complete. Run each case in a
+  single process.
+- **Launchers.** `bash launch/run.sh fit ...` runs a command in the shared environment, and
+  `launch/run.sbatch` is a Slurm template. Each command accepts `--help`.
 
-| Paper item | Summary output |
+## Code
+
+| Path | Contents |
 |---|---|
-| Main comparison | `comparison.csv` |
-| Dense margin | `dense_margin.csv`, `dense_margin.pdf` |
-| Main result | `main_result.pdf` |
-| Norm and strength | `norm_strength.pdf` |
-| Proportion sweeps | `proportion_sweeps.pdf` |
-| Coordinate overlap | `coordinates.csv`, `selected_coordinates.pdf` |
-| Mask stability | `stability.csv`, `mask_stability.pdf` |
-| General capability | `capability.csv` |
+| `reproduce/` | The commands above |
+| `sparse_steering/method/` | Mask training, sparse edit and constrained normalization |
+| `sparse_steering/baselines/` | Dense and PCA steering; magnitude, gradient and IE coordinate selection |
+| `sparse_steering/tasks/` | Answer-selection and detoxification tasks, data sources and splits |
+| `sparse_steering/evaluation/` | Strength grid, best feasible selection, capability and confidence intervals |
+| `sparse_steering/runtime/` | Model loading, hooks, storage and multi-GPU placement |
+| `sparse_steering/analysis/` | Tables and figures |
+| `protocol/` | Experiment settings (`experiment.json`) and the fixed splits of each seed |
+| `configs/` | Dataset revisions, library versions and capability item identifiers |
 
-Repeating the commands with seeds 1, 2 and 3 produces one summary per seed.
+`protocol/experiment.json` is the single definition of the experiments: model revisions, layers,
+strength grid, training settings and text-quality limits.
+[protocol/PROTOCOL.md](protocol/PROTOCOL.md) explains each part.
 
-### Bundled results
+The paper's expressions are implemented in these files, relative to `sparse_steering/`:
 
-`results/` contains the saved strength and proportion sweeps, best feasible selections,
-selected coordinates, coordinate statistics, mask stability and paired capability intervals
-for seeds 0 to 3. See [results/README.md](results/README.md) for coverage, units and absent fields.
-Rebuild each seed's tables and figures, then the four-seed tables, without model downloads:
+| Paper expression | Implementation |
+|---|---|
+| Mean-difference direction and activation scale | `runtime/model_loading.py::fit_direction` |
+| Exact-K mask and straight-through surrogate | `method/mask_training/masks.py` |
+| Answer-selection loss | `method/mask_training/objectives.py::reference_loss` |
+| Full-response loss | `method/mask_training/objectives.py::preference_loss` |
+| Sparse edit, h_tilde = h + alpha * v_M | `method/sparse_edit.py::realize_batch` |
+| Constrained normalization, beta * h_tilde | `method/constrained_normalization.py` |
+| Global normalization | `method/global_normalization.py` |
+| Best feasible score under the text-quality limits | `evaluation/text_quality.py` |
 
-```bash
-for seed in 0 1 2 3; do
-  python -m reproduce.summarize --results results --output "/tmp/seed${seed}-tables" --seed "$seed"
-done
-python -m reproduce.average --results results --output /tmp/averaged-tables
-```
+Result files and tables name the methods with these keys:
 
-The averaged main comparison selects each seed's best feasible setting before averaging.
-The coordinate table averages coordinate statistics. Capability Mean averages per-seed mean
-absolute changes; Range takes the signed minimum and maximum over all models, tasks and seeds.
+| Key | Method |
+|---|---|
+| `ours` | Optimized sparsification with constrained normalization |
+| `sparsification_only` | Optimized sparsification without normalization |
+| `sparsification_global_norm` | Optimized sparsification with global normalization |
+| `dense` | Dense baseline (CAA), the mean-difference direction |
+| `normalized_dense` | Dense baseline with global normalization |
+| `pca_dense`, `pca_sparse` | PCA direction, dense and sparse |
+| `magnitude`, `gradient`, `ie` | Coordinates selected by magnitude, gradient and IE |
+| `unsteered` | The model without steering |
 
-Redraw the paper's seven data figures from `results/` alone (CPU only). Figures 2 and 3 are
-diagrams and need no data. This command needs Matplotlib and PyMuPDF from `requirements.txt`;
-Matplotlib 3.10.9 matches the paper rendering. Fonts ship with Matplotlib; no TeX installation is needed.
-
-```bash
-python -m reproduce.paper_figures --results results --output <dir>
-```
-
-### Protocol
-
-- **Settings.** `protocol/experiment.json` is the single experiment definition.
-  `protocol/PROTOCOL.md` explains every section.
-- **Splits.** `protocol/splits/seed<k>/<task>.json` fixes training, mask-selection and test
-  membership. Seed 0 for RealToxicityPrompts uses a deterministic, checksum-verified reconstruction
-  rule.
-- **Strength.** `strength_index` identifies the 0 to 15 grid; five cases also have a half-step
-  identified as `"1/2"`. `alpha` is the multiplier of the unnormalized added vector. The internal
-  `edit_norm_ratio_squared` sets the requested squared displacement relative to the
-  training-activation scale.
-- **Methods.** Keys are `dense`, `normalized_dense`, `pca_dense`, `pca_sparse`, `magnitude`,
-  `gradient`, `ie`, `ours`, `sparsification_only` and `sparsification_global_norm`. The reference is
-  `unsteered`. Our method combines optimized sparsification with constrained normalization. The
-  dense baseline (CAA) uses the mean-difference direction. Mask training adapts the
-  preference objective from BiPO while freezing the direction and language model.
-- **Selection.** The best feasible setting has the highest task score within the NLL and repetition
-  limits. NLL ratio is at most 1.15; task-specific repetition limits are defined in the protocol.
-- **Seeds.** Each experiment seed fixes data splits and fitted objects. Three mask-training reruns
-  differ in initialization and data order; select one on the separate mask-selection set.
+The best feasible setting of a method is the strength with the highest task score whose NLL ratio
+is at most 1.15 and whose repetition is within the task's limit.
 
 ## Tests
 
 ```bash
-python -m compileall -q .
 python -m unittest discover
 ```
 
-The 28 tests run on CPU and download nothing. Each reproduce command accepts `--help`.
+The 34 tests run on CPU and download nothing.
